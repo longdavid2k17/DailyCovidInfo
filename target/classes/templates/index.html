@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/mvc">
+<head>
+    <meta charset="UTF-8">
+    <title>Beware COVID! Serwis informacyjny</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+    <link rel="icon" href="http://example.com/favicon.png">
+    <style>
+        html
+        {
+            height: 100%;
+            margin: auto;
+            scroll-behavior: smooth;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: scroll;
+            background: #EEEEEE;
+            font-family: 'Segoe UI';
+        }
+        #navbar {
+            z-index: 1000;
+            text-align: center;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        #navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px;
+            text-decoration: none;
+            margin-left: 50px;
+            margin-right: 50px;
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .sticky {
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        .sticky + .content {
+            padding-top: 60px;
+        }
+        hr
+        {
+            width: 70%;
+            height: 2px;
+        }
+
+        #covidInfo
+        {
+            margin-top: 100px;
+            text-align: center;
+        }
+        #covidInfo b
+        {
+            font-size: 40px;
+        }
+        #mapInfo
+        {
+            margin-top: 100px;
+            text-align: center;
+            font-size: 40px;
+        }
+        #importantPlaces
+        {
+            margin-top: 50px;
+            text-align: center;
+        }
+        #importantPlaces b
+        {
+            font-size: 40px;
+        }
+
+
+        #mapid
+        {
+            margin-top: 10px;
+            height: 700px;
+            width: 80%;
+        }
+
+    </style>
+</head>
+<body>
+<div id="navbar">
+    <center>
+    <a href="#covidInfo">Co to jest COVID-19</a><a href="#mapid">Mapa zarażeń</a><a href="#importantPlaces">Jak się bronić</a>
+    </center>
+</div>
+<div id="covidInfo">
+    <b>Co to jest COVID-19</b><br>
+    <img src="covid_img.png" width="590" height="600"><br>
+    Koronawirusy to duża rodzina wirusów RNA, które odpowiedzialne są za około 10-20 proc. wszystkich przeziębień, ale które mogą wywoływać także poważniejsze choroby, jak Bliskowschodni zespół oddechowy czy zespół ciężkiej ostrej niewydolności oddechowej.<br>
+    Koronawirus SARS-CoV-2 (nazywany często koronawirusem COVID-19 od nazwy choroby, którą wywołuje) to nowy koronawirus, który został odkryty pod koniec grudnia 2019 roku w mieście Wuhan w prowincji Hubei w Chinach.<br>
+    Koronawirus SARS-CoV-2 należy do tego samego typu wirusów co SARS i MERS.<br>
+    Koronawirus SARS-CoV-2, który odpowiedzialny jest za chorobę COVID-19 to wirus RNA o kształcie zbliżonym do kulistego. <br>
+    Swoją nazwę zawdzięcza otoczce białkowej z wypustkami, która kształtem przypomina koronę. Średnica pojedynczej cząsteczki wirusa wynosi od 60 do 140 nanometrów.<br><br><br>
+    <hr>
+</div>
+<div id="mapInfo">
+    <b>Mapa choroby</b>
+</div>
+<center><div id="mapid"></div></center>
+
+<script th:inline="javascript">
+
+    var data = [[${pointList}]];
+
+    var mymap = L.map('mapid').setView([52.95, 19.238], 6);
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1
+    }).addTo(mymap);
+
+    data.forEach(value => {
+        L.marker([value.x, value.y]).addTo(mymap)
+            .bindPopup(value.text);});
+
+    window.onscroll = function() {myFunction()};
+
+    var navbar = document.getElementById("navbar");
+    var sticky = navbar.offsetTop;
+
+    function myFunction() {
+        if (window.pageYOffset >= sticky) {
+            navbar.classList.add("sticky")
+        } else {
+            navbar.classList.remove("sticky");
+        }
+    }
+</script>
+<br><br><br>
+<hr>
+<div id="importantPlaces">
+    <b>Jak się bronić?</b><br/>
+    W celu skutecznej dezynfekcji powierzchni z koronawirusa możemy wykorzystać produkty zawierające roztwór min 70 proc. alkoholu, roztwory na bazie wybielacza lub środki przeznaczone do dezynfekcji.<br/>
+    W celu ochrony przed koronawirusem warto pamiętać o dezynfekcji telefonów komórkowych, ale też innych urządzeń, których często dotykamy (np. klawiatur czy pilotów TV). <br/>
+    Są one siedliskiem drobnoustrojów, z którego łatwo możemy przenieść wirus na twarz.<br/>
+    Mycie rąk wodą z mydłem i używanie żeli antybakteryjnych to jedne z głównych sposobów, dzięki którym możemy zmniejszyć ryzyko zarażenia koronawirusem. <br/>
+    Musimy jednak pamiętać, aby dłonie myć minimum 30-40 sekund i używać środków antybakteryjnych o odpowiednim stężeniu alkoholu.<br/>
+    W celu dezynfekcji ubrań wystarczy ich normalne upranie, w standardowych detergentach. <br/>
+    Będzie to wystarczające do usunięcia koronawirusa z odzieży.<br/>
+    Maseczka ochronna nie chroni przed infekcją, a co więcej może stać się potencjalnym źródłem tej infekcji,<br/>
+    jeśli osoba ją nosząca nie przestrzega innych działań profilaktycznych – nie myje rąk i nie odkaża ich środkami na bazie alkoholu.<br/>
+    Światowa Organizacja Zdrowia apeluje, by używać maseczek racjonalnie (nie marnować zasobów) – tylko w przypadku wystąpienia objawów ze strony układu oddechowego (kaszlu lub kichania),<br/>
+    podejrzenia infekcji koronawirusem z łagodnymi objawami albo opieki nad osobą, u której może występować zakażenie.<br/>
+    Muszą to być jednak maski wysokiej jakości, w przeciwnym razie po godzinie użytkowania staną się siedliskiem drobnoustrojów<br/>
+    Bądź na bieżąco z najnowszymi informacjami na temat wybuchu COVID-19, dostępnymi na stronie internetowej WHO oraz za pośrednictwem krajowego i lokalnego urzędu zdrowia publicznego.<br/>
+    Większość zarażonych ludzi doświadcza łagodnej choroby i dochodzi do siebie, ale dla innych może być ona poważniejsza. Zadbaj o swoje zdrowie i chroń innych, wykonując następujące czynności:<br/>
+    Zachowaj co najmniej 1 metr odległości od siebie i każdego, kto kaszle lub kicha.<br/>
+    Dlaczego? Kiedy ktoś kaszle lub kicha, rozpyla małe kropelki płynu z nosa lub ust, które mogą zawierać wirusa.<br/>
+    Jeśli jesteś zbyt blisko, możesz oddychać kroplami, w tym wirusem COVID-19, jeśli osoba kaszląca ma chorobę.<br/>
+    Upewnij się, że ty i ludzie wokół ciebie przestrzegacie higieny dróg oddechowych. Oznacza to zakrycie ust i nosa zgiętym łokciem lub tkanką podczas kaszlu lub kichania. Następnie natychmiast usuń zużytą tkankę.<br/>
+    Dlaczego? Kropelki rozprzestrzeniają wirusa. Przestrzegając zasad higieny układu oddechowego, chronisz ludzi wokół siebie przed wirusami, takimi jak przeziębienie, grypa i COVID-19.<br/>
+</div>
+</body>
+</html>
